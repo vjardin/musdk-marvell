@@ -3,7 +3,16 @@
  */
 
 #include "std_internal.h"
-#include "../../modules/include/musdk_cma_ioctls.h"
+
+/* MUSDK CMA ioctl definitions.
+ * These match the kernel UAPI at include/uapi/linux/musdk_cma.h
+ * and the legacy modules/include/musdk_cma_ioctls.h.
+ */
+#ifndef MUSDK_IOC_TYPE_BASE
+#define MUSDK_IOC_TYPE_BASE	0x23
+#define MUSDK_IOC_CMA_ALLOC	_IOW(MUSDK_IOC_TYPE_BASE, 1, u64)
+#define MUSDK_IOC_CMA_FREE	_IOW(MUSDK_IOC_TYPE_BASE, 2, u64)
+#endif
 
 #include "env/cma.h"
 #include "lib/lib_misc.h"
