@@ -14,7 +14,7 @@ int write_buf_to_file(char *file_name, char *buff, u32 size)
 	size_t	s;
 	int	fd;
 
-	fd = open(file_name, O_RDWR | O_CREAT);
+	fd = open(file_name, O_RDWR | O_CREAT, 0644);
 	if (fd == -1) {
 		pr_err("Failed to open file %s\n", file_name);
 		return -EIO;
