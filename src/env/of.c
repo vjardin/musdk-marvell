@@ -42,7 +42,8 @@ static int create_of_sh(void)
 	fputs(script_str, of_sh);
 	fclose(of_sh);
 	snprintf(command, sizeof(command), "sync; chmod 755 %s", OF_SH_FILENAME);
-	system(command);
+	if (system(command) != 0)
+		pr_warn("of: chmod command failed\n");
 	return 0;
 }
 

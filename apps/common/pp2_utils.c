@@ -107,7 +107,8 @@ void app_show_port_eth_tool_get(struct port_desc *port_desc)
 	char buf[50] = "ethtool ";
 
 	strcat(buf, port_desc->name);
-	system(buf);
+	if (system(buf) != 0)
+		pr_warn("ethtool command failed\n");
 }
 
 int app_is_linux_sysfs_ena(void)
@@ -1555,7 +1556,7 @@ int app_find_port_info(struct port_desc *port_desc)
 	u8		 pp, ppio;
 	int		 err;
 
-	if (!port_desc->name) {
+	if (!port_desc->name[0]) {
 		pr_err("No port name given!\n");
 		return -1;
 	}
@@ -2046,9 +2047,14 @@ int app_pp2_sysfs_param_get(char *if_name, char *file)
 	}
 
 	sprintf(w_buf, "echo %s > %s/%s", if_name, PP2_SYSFS_MUSDK_PATH, PP2_SYSFS_DEBUG_PORT_SET_FILE);
-	system(w_buf);
+	if (system(w_buf) != 0)
+		pr_warn("sysfs write command failed\n");
 
-	fgets(r_buf, sizeof(r_buf), fp);
+	if (!fgets(r_buf, sizeof(r_buf), fp)) {
+		pr_err("failed to read sysfs param\n");
+		fclose(fp);
+		return -EIO;
+	}
 	scanned = sscanf(r_buf, "%d\n", &param);
 	if (scanned != 1) {
 		pr_err("Invalid number of parameters read %s\n", r_buf);
