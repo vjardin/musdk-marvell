@@ -1236,7 +1236,7 @@ static int parse_args(struct glob_arg *garg, int argc, char *argv[])
 
 	/* Now, check validity of all inputs */
 	if (!garg->cmn_args.num_ports ||
-	    !pp2_args->ports_desc[0].name) {
+	    !pp2_args->ports_desc[0].name[0]) {
 		pr_err("No port defined!\n");
 		return -EINVAL;
 	}

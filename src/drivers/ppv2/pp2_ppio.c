@@ -1436,7 +1436,7 @@ int pp2_ppio_probe(char *match, char *buff, struct pp2_ppio **ppio_hdl)
 	}
 
 	json_buffer_to_input_str(sec, "linux_name", port->linux_name);
-	if (!port->linux_name) {
+	if (!port->linux_name[0]) {
 		pr_err("'linux_name' not found\n");
 		rc = -EINVAL;
 		goto ppio_probe_exit;
@@ -1464,7 +1464,9 @@ int pp2_ppio_probe(char *match, char *buff, struct pp2_ppio **ppio_hdl)
 	json_buffer_to_input(sec, "duplex", port->mac_data.duplex);
 	json_buffer_to_input(sec, "speed", port->mac_data.speed);
 	json_buffer_to_input_mac(sec, "mac_address", port->mac_data.mac);
-	if (!port->mac_data.mac) {
+	if (!(port->mac_data.mac[0] | port->mac_data.mac[1] |
+	      port->mac_data.mac[2] | port->mac_data.mac[3] |
+	      port->mac_data.mac[4] | port->mac_data.mac[5])) {
 		pr_err("'mac_data.mac' not found\n");
 		rc = -EINVAL;
 		goto ppio_probe_exit;
