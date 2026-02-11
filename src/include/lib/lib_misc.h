@@ -39,7 +39,8 @@ do {										\
 	int tab;								\
 	u32 str_len, tab_len = 0;						\
 	for (tab = 0; tab < num_tabs; tab++) {					\
-		str_len = snprintf(&tmp_buf[tab], FILE_MAX_LINE_CHARS, "\t");	\
+		str_len = snprintf(&tmp_buf[tab],			\
+				   FILE_MAX_LINE_CHARS - tab, "\t");	\
 		tab_len += str_len;						\
 	}									\
 	str_len = snprintf(&tmp_buf[tab_len], size - pos, __VA_ARGS__);		\
