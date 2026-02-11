@@ -3619,7 +3619,7 @@ int pp2_cls_c3_hit_cntrs_miss_read(uintptr_t cpu_slot, int lkp_type, u32 *cntr)
 /*-------------------------------------------------------------------------------*/
 int pp2_cls_c3_hit_cntrs_read_all(uintptr_t cpu_slot)
 {
-	u32 counter, index;
+	u32 counter = 0, index;
 
 	for (index = 0; index < MVPP2_CLS_C3_HASH_TBL_SIZE; index++) {
 		pp2_cls_c3_hit_cntrs_read(cpu_slot, index, &counter);

@@ -1254,10 +1254,15 @@ int pp2_cls_db_mng_tbl_remove(struct pp2_cls_tbl *tbl)
 	LIST_FOR_EACH_OBJECT(tbl_node, struct pp2_cls_tbl_node, &mng_db->pp2_cls_tbl_head, list_node) {
 		if (&tbl_node->tbl == tbl) {
 			/* Remove all rules first */
-			LIST_FOR_EACH_OBJECT(rule_node, struct pp2_cls_rule_node, &tbl_node->pp2_cls_tbl_rule_head,
-					     list_node) {
-					     list_del(&rule_node->list_node);
-					     kfree(rule_node);
+			{
+			struct pp2_cls_rule_node *tmp_rule;
+
+			LIST_FOR_EACH_OBJECT_SAFE(rule_node, tmp_rule,
+						  &tbl_node->pp2_cls_tbl_rule_head,
+						  struct pp2_cls_rule_node, list_node) {
+				list_del(&rule_node->list_node);
+				kfree(rule_node);
+			}
 			}
 			list_del(&tbl_node->list_node);
 			kfree(tbl_node);

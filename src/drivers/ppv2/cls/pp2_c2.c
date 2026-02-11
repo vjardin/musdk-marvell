@@ -1024,7 +1024,7 @@ static int pp2_cls_c2_make_slot_middle(struct pp2_inst *inst,
 	int ret_code;
 	struct pp2_cls_c2_index_t *c2_index_node = NULL, *c2_first_node = NULL, *c2_last_node = NULL;
 	u32 free_idx, pp2_cls_idx, node_count;
-	u32 c2_search_start, c2_search_end, pri_prev, pri_next;
+	u32 c2_search_start = 0, c2_search_end = 0, pri_prev, pri_next;
 	int pri_tmp, i;
 	struct mv_pp2x_cls_c2_entry c2_entry;
 	uintptr_t cpu_slot = pp2_default_cpu_slot(inst);
