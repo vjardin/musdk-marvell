@@ -10,23 +10,12 @@
 #include <linux/of.h>
 #include <linux/of_platform.h>
 #include <linux/of_reserved_mem.h>
-#include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
-#include <linux/dma-noncoherent.h>
-#endif
-
 #include <linux/mm.h>
 #include <linux/clk.h>
 #include <linux/dma-mapping.h>
-#include <linux/cma.h>
-
-#include <linux/dma-contiguous.h>
-#include <linux/of_reserved_mem.h>
-
-
+#include <linux/dma-map-ops.h>
 #include <linux/uaccess.h>
 #include <linux/mutex.h>
-#include <linux/skbuff.h>
 
 #include "../include/musdk_cma_ioctls.h"
 
@@ -139,13 +128,8 @@ static int cma_calloc(struct musdk_cma *cma_mem, void *argp)
 	size  = PAGE_ALIGN(size);
 
 	/* allocate space from CMA */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
 	ptr->kvaddr = dma_alloc_coherent(cma_mem->dev, size, &paddr,
 			GFP_KERNEL | GFP_DMA);
-#else
-	ptr->kvaddr = dma_zalloc_coherent(cma_mem->dev, size, &paddr,
-			GFP_KERNEL | GFP_DMA);
-#endif
 	if (!ptr->kvaddr) {
 		pr_err("Not enough CMA memory to alloc %lld bytes", size);
 		kfree(ptr);
@@ -373,11 +357,7 @@ static int musdk_cma_probe(struct platform_device *pdev)
 	cma_mem->dev = dev;
 	atomic_set(&cma_mem->refcount, 0);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 20, 0)
 	if (!dev_is_dma_coherent(dev))
-#else
-	if (!dev->archdata.dma_coherent)
-#endif
 		dev_warn(dev, "Not dma_coherent\n");
 
 	dev->dma_mask = kmalloc(sizeof(*dev->dma_mask), GFP_KERNEL);
@@ -424,19 +404,15 @@ fail:
  * - unregister misc device
  *
  */
-static int musdk_cma_remove(struct platform_device *pdev)
+static void musdk_cma_remove(struct platform_device *pdev)
 {
 	struct musdk_cma *cma_mem = platform_get_drvdata(pdev);
 
 	if (!cma_mem)
-		return -EINVAL;
+		return;
 
 	misc_deregister(&cma_mem->misc);
 	pr_debug("Detached misc: {%s} device\n", cma_mem->misc.name);
-
-	platform_set_drvdata(pdev, NULL);
-
-	return 0;
 }
 
 static const struct file_operations musdk_misc_fops = {
@@ -445,7 +421,7 @@ static const struct file_operations musdk_misc_fops = {
 	.mmap		= musdk_cma_mmap,
 	.release	= musdk_cma_release,
 	.unlocked_ioctl	= musdk_cma_ioctl,
-	.compat_ioctl	= musdk_cma_ioctl,
+	.compat_ioctl	= compat_ptr_ioctl,
 };
 
 static const struct of_device_id musdk_of_match[] = {
@@ -456,7 +432,6 @@ static const struct of_device_id musdk_of_match[] = {
 
 static struct platform_driver musdk_cma_driver = {
 	.driver = {
-		.owner		= THIS_MODULE,
 		.name		= DRIVER_NAME,
 		.of_match_table	= musdk_of_match,
 	},

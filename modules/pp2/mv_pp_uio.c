@@ -161,13 +161,13 @@ fail:
  * - unregister uio devices
  *
  */
-static int mv_pp_uio_remove(struct platform_device *pdev)
+static void mv_pp_uio_remove(struct platform_device *pdev)
 {
 	struct uio_pdrv_pp_info *uio_pdrv_pp = platform_get_drvdata(pdev);
 	struct device *dev = &pdev->dev;
 
 	if (!uio_pdrv_pp)
-		return -EINVAL;
+		return;
 
 	if (uio_pdrv_pp->uio_num != -EIO) {
 		for (int idx = 0; idx <= uio_pdrv_pp->uio_num; ++idx) {
@@ -175,9 +175,6 @@ static int mv_pp_uio_remove(struct platform_device *pdev)
 			uio_unregister_device(&uio_pdrv_pp->uio[idx]);
 		}
 	}
-	platform_set_drvdata(pdev, NULL);
-
-	return 0;
 }
 
 static const struct of_device_id mv_pp_of_match[] = {
@@ -187,7 +184,6 @@ static const struct of_device_id mv_pp_of_match[] = {
 
 static struct platform_driver mv_pp_uio_driver = {
 	.driver = {
-		.owner		= THIS_MODULE,
 		.name		= DRIVER_NAME,
 		.of_match_table	= mv_pp_of_match,
 	},
